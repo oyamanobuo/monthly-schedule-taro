@@ -18,7 +18,8 @@ label{font-size:12px;color:#374151;font-weight:800;display:block;margin:0 0 5px}
 .eventline{display:grid;grid-template-columns:92px minmax(0,1fr) 96px;gap:10px;align-items:center;padding:10px 12px}
 .datepill{font-weight:900;font-size:18px;white-space:nowrap}.rulemini{font-size:11px;color:var(--muted);font-weight:800;margin-top:2px}
 .eventtitle{font-size:16px;font-weight:900;margin-bottom:6px;line-height:1.25;white-space:pre-line}
-.ta-title{min-height:44px;resize:vertical}
+.ta-title{min-height:50px;resize:vertical}
+.templatetitle{font-size:14px;font-weight:800;line-height:1.3;white-space:pre-line;padding:8px 1px 2px;min-height:20px}
 .performerpreview{font-size:13px;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .eventtools{display:flex;flex-direction:column;gap:7px}.eventtools button{padding:8px 9px;font-size:12px}.eventtools .switch{font-size:12px}
 .detailbox{display:none;border-top:1px solid var(--line);background:#fafafa;padding:10px 12px}.event.open .detailbox{display:block}
@@ -238,7 +239,7 @@ function renderTemplates(){
         <div class="drag-handle" title="ドラッグして並べ替え">⠿</div>
         <div>
           <label>イベント名</label>
-          <textarea class="ta-title" data-field oninput="editTemplate(${i},'title',this.value,false)">${esc(t.title)}</textarea>
+          <div class="templatetitle">${t.title?esc(t.title):"（未設定）"}</div>
         </div>
         <div>
           <label>開催</label>
@@ -248,7 +249,8 @@ function renderTemplates(){
       </div>
 
       <div class="template-extra">
-        <div class="grid2">
+        <div><label>イベント名</label><textarea class="ta-title" data-field oninput="editTemplate(${i},'title',this.value,false)">${esc(t.title)}</textarea></div>
+        <div class="grid2" style="margin-top:8px">
           <div><label>ジャンル</label><input data-field value="${esc(t.genre)}" oninput="editTemplate(${i},'genre',this.value,false)"></div>
           <div>
             <label>開催タイプ</label>
