@@ -18,15 +18,15 @@ label{font-size:12px;color:#374151;font-weight:800;display:block;margin:0 0 5px}
 .eventline{display:grid;grid-template-columns:92px minmax(0,1fr) 96px;gap:10px;align-items:center;padding:10px 12px}
 .datepill{font-weight:900;font-size:18px;white-space:nowrap}.rulemini{font-size:11px;color:var(--muted);font-weight:800;margin-top:2px}
 .eventtitle{font-size:16px;font-weight:900;margin-bottom:6px;line-height:1.25;white-space:pre-line}
-.ta-title{min-height:50px;resize:vertical}
-.templatetitle{font-size:14px;font-weight:800;line-height:1.3;white-space:pre-line;padding:8px 1px 2px;min-height:20px}
+.ta-title{min-height:25px;resize:vertical}
+.templatetitle{font-size:14px;font-weight:700;line-height:1.3;padding:8px 9px;border:1px solid var(--line);border-radius:9px;background:#f7f8fa;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .performerpreview{font-size:13px;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .eventtools{display:flex;flex-direction:column;gap:7px}.eventtools button{padding:8px 9px;font-size:12px}.eventtools .switch{font-size:12px}
 .detailbox{display:none;border-top:1px solid var(--line);background:#fafafa;padding:10px 12px}.event.open .detailbox{display:block}
 .event.event-hidden{opacity:.5}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid3{display:grid;grid-template-columns:1fr 100px 110px;gap:10px}.grid4{display:grid;grid-template-columns:1fr 1fr 120px 130px;gap:10px}
 .ta-big{min-height:130px}
-.template textarea[data-field]{min-height:100px}
+.template textarea[data-field]:not(.ta-title){min-height:100px}
 .switch{display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:800}.switch input{width:auto;transform:scale(1.15)}
 .addbar{width:100%;border-color:#3157d5;color:#3157d5;background:#fff;margin:2px 0 10px}.outputs{margin-top:18px;display:grid;grid-template-columns:1fr;gap:14px}.right{display:none}.outcard{border:1px solid var(--line);border-radius:var(--radius);padding:12px;margin-bottom:14px;box-shadow:var(--shadow)}.outhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.outhead h3{font-size:16px;margin:0}
 pre{white-space:pre-wrap;background:#fafafa;border:1px solid var(--line);border-radius:9px;padding:10px;margin:0;max-height:540px;overflow:auto;font-size:13px;line-height:1.55}.settings{display:none}.template{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px}.template h3{margin:0 0 8px;font-size:15px}.template .template-head{display:grid;grid-template-columns:26px minmax(0,1.3fr) minmax(0,1fr) auto;gap:8px;align-items:end}.template .template-extra{display:none;border-top:1px solid var(--line);margin-top:10px;padding-top:10px}.template.open .template-extra{display:block}.template .modebox{padding:9px;margin-top:8px}
@@ -233,24 +233,25 @@ function renderTemplates(){
     if(q && !`${t.title} ${t.genre}`.toLowerCase().includes(q)) return;
     shown++;
     const isIrregular=(t.mode||"regular")==="irregular";
-    const div=document.createElement("div");div.className="template"+(openTemplateIds.has(t.id)?" open":"");div.dataset.templateId=t.id;
+    const div=document.createElement("div");const isOpen=openTemplateIds.has(t.id);div.className="template"+(isOpen?" open":"");div.dataset.templateId=t.id;
     div.innerHTML=`
       <div class="template-head">
         <div class="drag-handle" title="ドラッグして並べ替え">⠿</div>
         <div>
           <label>イベント名</label>
-          <div class="templatetitle">${t.title?esc(t.title):"（未設定）"}</div>
+          ${isOpen
+            ? `<textarea class="ta-title" data-field oninput="editTemplate(${i},'title',this.value,false)">${esc(t.title)}</textarea>`
+            : `<div class="templatetitle">${t.title?esc(t.title):"（未設定）"}</div>`}
         </div>
         <div>
           <label>開催</label>
           <div style="font-size:13px;font-weight:900;line-height:1.35">${esc(ruleLabel(t))}</div>
         </div>
-        <button type="button" onclick="toggleTemplateDetail(this)">${openTemplateIds.has(t.id)?"▲ 閉じる":"▼ 詳細"}</button>
+        <button type="button" onclick="toggleTemplateDetail(this)">${isOpen?"▲ 閉じる":"▼ 詳細"}</button>
       </div>
 
       <div class="template-extra">
-        <div><label>イベント名</label><textarea class="ta-title" data-field oninput="editTemplate(${i},'title',this.value,false)">${esc(t.title)}</textarea></div>
-        <div class="grid2" style="margin-top:8px">
+        <div class="grid2">
           <div><label>ジャンル</label><input data-field value="${esc(t.genre)}" oninput="editTemplate(${i},'genre',this.value,false)"></div>
           <div>
             <label>開催タイプ</label>
@@ -317,10 +318,9 @@ function initSortable(){
 function toggleTemplateDetail(btn){
   const card=btn.closest(".template");
   const id=card.dataset.templateId;
-  card.classList.toggle("open");
-  if(card.classList.contains("open")) openTemplateIds.add(id);
-  else openTemplateIds.delete(id);
-  btn.textContent=card.classList.contains("open") ? "▲ 閉じる" : "▼ 詳細";
+  if(openTemplateIds.has(id)) openTemplateIds.delete(id);
+  else openTemplateIds.add(id);
+  renderTemplates();
 }
 function editTemplate(i,k,v,rerender){
   const x=window.scrollX, y=window.scrollY;
