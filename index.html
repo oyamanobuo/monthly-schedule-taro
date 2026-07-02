@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>月間スケジュール屋さん太郎</title>
+<style>
+:root{--bg:#f6f7fb;--panel:#fff;--ink:#111827;--muted:#6b7280;--line:#e5e7eb;--blue:#3157d5;--red:#ef4444;--green:#16a34a;--shadow:0 10px 30px rgba(0,0,0,.07);--radius:14px}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",Meiryo,sans-serif;background:var(--bg);color:var(--ink)}
+button,input,select,textarea{font:inherit}button{cursor:pointer;border:1px solid var(--line);border-radius:10px;background:#fff;padding:10px 14px;font-weight:700}
+button.primary{background:var(--blue);color:#fff;border-color:var(--blue)}button.danger{color:var(--red)}input,select,textarea{width:100%;border:1px solid var(--line);border-radius:9px;padding:8px 9px;background:#fff}textarea{min-height:58px;resize:vertical}
+label{font-size:12px;color:#374151;font-weight:800;display:block;margin:0 0 5px}.app{display:grid;grid-template-columns:300px 1fr;min-height:100vh}
+.side{background:#050505;color:#fff;padding:18px 14px;display:flex;flex-direction:column;gap:16px}.brand{display:flex;gap:12px;align-items:center}.logo{width:42px;height:42px;border:2px solid #fff;border-radius:11px;display:grid;place-items:center;font-size:24px}.brand h1{font-size:17px;line-height:1.15;margin:0;white-space:nowrap;letter-spacing:-.01em}.brand p{margin:4px 0 0;color:#c7c7c7;font-size:12px}
+.nav button{display:block;width:100%;text-align:left;margin:7px 0;background:#111;color:#fff;border-color:#222}.nav button.active{background:linear-gradient(135deg,#4266e8,#2949bd)}
+.sidecard{background:#111;border:1px solid #252525;border-radius:12px;padding:13px}.sidecard h3{margin:0 0 10px;font-size:14px}.monthrow{display:grid;grid-template-columns:42px 1fr 42px;gap:6px}.monthrow button,.monthrow select{background:#181818;color:#fff;border-color:#333}.small{font-size:12px;color:#aaa;line-height:1.7}
+.main{padding:24px;overflow:auto}.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px}.topbar h2{margin:0;font-size:23px;line-height:1.3}.topbar h2 .titlesub{display:block;font-size:14px;color:var(--muted);font-weight:700;margin-top:2px}.actions{display:flex;gap:8px;flex-wrap:wrap}
+.notice{border:1px solid #f6d58b;background:#fff9e8;color:#8a5a00;border-radius:10px;padding:12px 14px;margin-bottom:18px;font-size:13px}.event{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin-bottom:8px;box-shadow:0 1px 0 rgba(0,0,0,.02);overflow:hidden}
+.eventline{display:grid;grid-template-columns:92px minmax(0,1fr) 96px;gap:10px;align-items:center;padding:10px 12px}
+.datepill{font-weight:900;font-size:18px;white-space:nowrap}.rulemini{font-size:11px;color:var(--muted);font-weight:800;margin-top:2px}
+.eventtitle{font-size:16px;font-weight:900;margin-bottom:6px;line-height:1.25;white-space:pre-line}
+.ta-title{min-height:44px;resize:vertical}
+.performerpreview{font-size:13px;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.eventtools{display:flex;flex-direction:column;gap:7px}.eventtools button{padding:8px 9px;font-size:12px}.eventtools .switch{font-size:12px}
+.detailbox{display:none;border-top:1px solid var(--line);background:#fafafa;padding:10px 12px}.event.open .detailbox{display:block}
+.event.event-hidden{opacity:.5}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid3{display:grid;grid-template-columns:1fr 100px 110px;gap:10px}.grid4{display:grid;grid-template-columns:1fr 1fr 120px 130px;gap:10px}
+.ta-big{min-height:130px}
+.template textarea[data-field]{min-height:100px}
+.switch{display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:800}.switch input{width:auto;transform:scale(1.15)}
+.addbar{width:100%;border-color:#3157d5;color:#3157d5;background:#fff;margin:2px 0 10px}.outputs{margin-top:18px;display:grid;grid-template-columns:1fr;gap:14px}.right{display:none}.outcard{border:1px solid var(--line);border-radius:var(--radius);padding:12px;margin-bottom:14px;box-shadow:var(--shadow)}.outhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.outhead h3{font-size:16px;margin:0}
+pre{white-space:pre-wrap;background:#fafafa;border:1px solid var(--line);border-radius:9px;padding:10px;margin:0;max-height:540px;overflow:auto;font-size:13px;line-height:1.55}.settings{display:none}.template{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px}.template h3{margin:0 0 8px;font-size:15px}.template .template-head{display:grid;grid-template-columns:26px minmax(0,1.3fr) minmax(0,1fr) auto;gap:8px;align-items:end}.template .template-extra{display:none;border-top:1px solid var(--line);margin-top:10px;padding-top:10px}.template.open .template-extra{display:block}.template .modebox{padding:9px;margin-top:8px}
+.drag-handle{cursor:grab;font-size:20px;color:var(--muted);text-align:center;user-select:none;padding-bottom:9px;touch-action:none}
+.template.sortable-ghost{opacity:.3}
+#templateList.search-active .drag-handle{opacity:.25;pointer-events:none;cursor:default}
+.searchbar{position:relative;margin-bottom:10px}.searchbar input{padding-left:32px}.searchbar::before{content:"🔍";position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:13px}
+.searchhint{font-size:12px;color:var(--muted);margin:-4px 0 10px}
+.emptystate{color:var(--muted);font-size:13px;padding:14px;text-align:center}.footer{font-size:12px;color:var(--green);background:#eaffef;border-radius:9px;padding:9px 12px;display:inline-block}.modebox{margin-top:12px;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fafafa}.modebuttons{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}.modebuttons button.active{background:#3157d5;color:#fff;border-color:#3157d5}.hidden{display:none!important}
+@media(max-width:1100px){.app{grid-template-columns:1fr}.eventline{grid-template-columns:1fr}.eventtools{flex-direction:row}.side{border:0}.main{padding:14px}.grid2,.grid3,.grid4,.outputs{grid-template-columns:1fr}.datebox .date{font-size:26px}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="side">
+  <div class="brand"><div class="logo">📅</div><div><h1>月間スケジュール屋さん太郎</h1><p>開催ルールから日付を自動算出</p></div></div>
+  <div class="nav">
+    <button class="active" onclick="showPage('schedule',event)">📅　今月の自動生成</button>
+    <button id="navTemplatesBtn" onclick="showPage('templates',event)">🗓　開催ルール設定</button>
+    <button onclick="showPage('schedule',event); requestAnimationFrame(()=>document.getElementById('outputs').scrollIntoView({behavior:'smooth'}))">📋　テキスト出力</button>
+  </div>
+  <div class="sidecard">
+    <h3>出力する月</h3>
+    <div class="monthrow"><button onclick="moveMonth(-1)">‹</button><select id="monthSelect" onchange="setMonth(); renderSchedule(); save()"></select><button onclick="moveMonth(1)">›</button></div>
+    <button class="primary" style="width:100%;margin-top:10px" onclick="generateMonth()">この月の日付を自動算出</button>
+  </div>
+  <button onclick="exportData()">⇩ バックアップを書き出す</button>
+  <button onclick="importData()">⇧ バックアップを読み込む</button>
+  <input id="importFile" type="file" accept=".json" style="display:none">
+</aside>
+
+<main class="main">
+<section id="schedulePage">
+  <div class="topbar"><h2 id="title">今月のスケジュール</h2><div class="actions"><button class="primary" onclick="addSingleEvent()">＋ 単発イベント追加</button><button class="danger" onclick="clearMonth()">🗑 この月をクリア</button></div></div>
+  <div class="notice">開催ルールから選択月の日付を自動計算します。通常はゲスト/出演者だけ入力、必要な時だけ「詳細」を開いて編集します。</div>
+  <div id="eventList"></div>
+
+  <div class="outputs" id="outputs">
+    <div class="outcard">
+      <div class="outhead"><h3>テキスト出力</h3><button onclick="copyText('detailText')">コピー</button></div>
+      <pre id="detailText"></pre>
+    </div>
+  </div>
+</section>
+
+<section id="templatesPage" class="settings">
+  <div class="topbar"><h2>開催ルール設定</h2><div class="actions"><button onclick="addIrregularTemplate()">＋ 不定期イベント追加</button><button class="primary" onclick="addTemplate()">＋ 定期イベント追加</button></div></div>
+  <div class="notice">定期開催は第何曜日から日付を自動算出。不定期開催は日付を直接入力して、同じ月の出力に混ぜられます。ハンドル（⠿）をドラッグすると並べ替えできます。</div>
+  <div class="searchbar"><input id="templateSearch" type="search" placeholder="イベント名・ジャンルで検索" oninput="renderTemplates()"></div>
+  <div id="templateSearchHint" class="searchhint hidden">検索中は並べ替えできません（検索を消すと並べ替え可能）</div>
+  <div id="templateList"></div>
+</section>
+</main>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+<script>
+const KEY="monthly_schedule_taro_rule_based_v2";
+const DOWS=["日","月","火","水","木","金","土"];
+let openTemplateIds=new Set();
+let openEventIds=new Set();
+let sortableInstance=null;
+let state={
+  selected:`${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,"0")}`,
+  templates:[],
+  overrides:{}
+};
+function uid(){return Math.random().toString(36).slice(2,10)}
+function load(){const raw=localStorage.getItem(KEY);if(raw)state=JSON.parse(raw);initMonthSelect();renderAll()}
+function save(){
+  const x=window.scrollX, y=window.scrollY;
+  localStorage.setItem(KEY,JSON.stringify(state));
+  renderOutputs();
+  window.scrollTo(x,y);
+}
+function initMonthSelect(){const s=document.getElementById("monthSelect");s.innerHTML="";for(let y=2025;y<=2032;y++){for(let m=1;m<=12;m++){let v=`${y}-${String(m).padStart(2,"0")}`;let o=document.createElement("option");o.value=v;o.textContent=`${y}年 ${m}月`;s.appendChild(o)}}s.value=state.selected}
+function setMonth(){state.selected=document.getElementById("monthSelect").value}
+function moveMonth(n){let [y,m]=state.selected.split("-").map(Number);let d=new Date(y,m-1+n,1);state.selected=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;document.getElementById("monthSelect").value=state.selected;renderSchedule();save()}
+function showPage(p,e){document.getElementById("schedulePage").style.display=p==="schedule"?"block":"none";document.getElementById("templatesPage").style.display=p==="templates"?"block":"none";document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active"));if(e)e.currentTarget.classList.add("active");if(p==="schedule")renderSchedule();if(p==="templates")renderTemplates()}
+function monthDiff(a,b){let [ay,am]=a.split("-").map(Number),[by,bm]=b.split("-").map(Number);return (ay-by)*12+(am-bm)}
+function occurs(t,ym){
+  if((t.mode||"regular")==="irregular"){
+    return (t.date||"").slice(0,7)===ym;
+  }
+  let diff=monthDiff(ym,t.base||ym);
+  return diff>=0 && diff%Number(t.interval||1)===0;
+}
+function nthWeekdayDate(year,month,nth,weekday){if(Number(nth)===9){let d=new Date(year,month,0);while(d.getDay()!=weekday)d.setDate(d.getDate()-1);return d}let d=new Date(year,month-1,1);while(d.getDay()!=weekday)d.setDate(d.getDate()+1);d.setDate(d.getDate()+(Number(nth)-1)*7);return d.getMonth()===month-1?d:null}
+function ruleLabel(t){
+  if((t.mode||"regular")==="irregular") return "不定期開催";
+  return `${intervalText(t.interval)} / ${nthText(t.nth)}${DOWS[t.weekday]}曜`;
+}
+function intervalText(v){return {1:"毎月",2:"2ヶ月に1回",3:"3ヶ月に1回",4:"4ヶ月に1回"}[Number(v)]||"毎月"}
+function nthText(v){return Number(v)===9?"最終":`第${v}`}
+function generateItems(){
+  const [y,m]=state.selected.split("-").map(Number);
+  let items=[];
+  state.templates.forEach(t=>{
+    if(!occurs(t,state.selected))return;
+    const isIrregular=(t.mode||"regular")==="irregular";
+    let date="";
+    if(isIrregular){
+      date=t.date;
+    }else{
+      const d=nthWeekdayDate(y,m,t.nth,t.weekday);
+      if(!d)return;
+      date=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+    }
+    if(isIrregular){
+      // 不定期（単発）イベントは月をまたいで出現しないため、月別の上書きは使わずテンプレート本体をそのまま使う
+      items.push({...t,templateId:t.id,date,rule:ruleLabel(t),visible:t.visible!==false});
+    }else{
+      const key=state.selected+"_"+t.id;
+      const o=state.overrides[key]||{};
+      items.push({...t,...o,templateId:t.id,date,rule:ruleLabel(t),visible:o.visible!==false});
+    }
+  });
+  return items.sort((a,b)=>a.date.localeCompare(b.date));
+}
+function generateMonth(){renderSchedule();save()}
+function renderAll(){renderSchedule();renderTemplates();renderOutputs()}
+function renderSchedule(){
+  setMonth();
+  const [y,m]=state.selected.split("-").map(Number);
+  document.getElementById("title").innerHTML=`今月のスケジュール<span class="titlesub">${y}年${m}月</span>`;
+  const list=document.getElementById("eventList");list.innerHTML="";
+  generateItems().forEach((ev,i)=>list.appendChild(eventCard(ev,i)));
+  renderOutputs();
+}
+function eventCard(ev,i){
+  const d=new Date(ev.date+"T00:00:00"), dow=d.getDay();
+  const isOpen=openEventIds.has(ev.templateId);
+  const isIrregular=(ev.mode||"regular")==="irregular";
+  let div=document.createElement("div");div.className="event"+(ev.visible?"":" event-hidden")+(isOpen?" open":"");div.dataset.templateId=ev.templateId;
+  div.innerHTML=`
+    <div class="eventline">
+      <div>
+        <div class="datepill">${d.getMonth()+1}/${d.getDate()}（${DOWS[dow]}）</div>
+        <div class="rulemini">${esc(ev.rule)}</div>
+      </div>
+
+      <div>
+        <div class="eventtitle">${esc(ev.title)}</div>
+        <div class="performerpreview" title="${esc(ev.performers)}">${ev.performers ? esc(ev.performers).replace(/\n+/g," / ") : "（出演者未定・「詳細」から入力）"}</div>
+      </div>
+
+      <div class="eventtools">
+        <button type="button" onclick="toggleDetail(this)">${isOpen?"▲ 閉じる":"▼ 詳細"}</button>
+        <label class="switch">表示 <input type="checkbox" ${ev.visible?"checked":""} onchange="editEventField('${ev.templateId}','visible',this.checked); this.closest('.event').classList.toggle('event-hidden', !this.checked)"></label>
+      </div>
+    </div>
+
+    <div class="detailbox">
+      <div class="grid2">
+        <div><label>イベント名</label><textarea class="ta-title" data-field oninput="editEventField('${ev.templateId}','title',this.value)">${esc(ev.title)}</textarea></div>
+        <div><label>ジャンル</label><input data-field value="${esc(ev.genre)}" oninput="editEventField('${ev.templateId}','genre',this.value)"></div>
+      </div>
+      <div style="margin-top:10px"><label>出演者 詳細</label><textarea class="ta-big" data-field oninput="editEventField('${ev.templateId}','performers',this.value)">${esc(ev.performers)}</textarea></div>
+      <div class="grid2" style="margin-top:10px">
+        <div><label>OPEN</label><input data-field value="${esc(ev.open)}" oninput="editEventField('${ev.templateId}','open',this.value)"></div>
+        <div><label>料金</label><input data-field value="${esc(ev.price)}" oninput="editEventField('${ev.templateId}','price',this.value)"></div>
+      </div>
+      <div style="margin-top:10px"><label>説明文</label><textarea data-field oninput="editEventField('${ev.templateId}','desc',this.value)">${esc(ev.desc)}</textarea></div>
+      <div style="margin-top:10px;display:flex;gap:8px;justify-content:flex-end">
+        ${isIrregular?"":`<button type="button" onclick="resetOverride('${ev.templateId}')">月変更をリセット</button>`}
+      </div>
+    </div>`;
+  return div;
+}
+function toggleDetail(btn){
+  const card=btn.closest(".event");
+  const id=card.dataset.templateId;
+  card.classList.toggle("open");
+  const isOpen=card.classList.contains("open");
+  if(id){ if(isOpen) openEventIds.add(id); else openEventIds.delete(id); }
+  btn.textContent=isOpen ? "▲ 閉じる" : "▼ 詳細";
+}
+function editEventField(templateId,k,v){
+  const idx=state.templates.findIndex(x=>x.id===templateId);
+  if(idx<0)return;
+  const isIrregular=(state.templates[idx].mode||"regular")==="irregular";
+  if(isIrregular){
+    // 単発イベントは月をまたいで再利用されないので、テンプレート本体を直接書き換える
+    state.templates[idx][k]=v;
+    save();
+  }else{
+    const key=state.selected+"_"+templateId;
+    state.overrides[key]=state.overrides[key]||{};
+    state.overrides[key][k]=v;
+    save();
+  }
+}
+function resetOverride(templateId){delete state.overrides[state.selected+"_"+templateId];renderSchedule();save()}
+function clearMonth(){if(confirm("この月のゲストDJなどの変更データを消しますか？固定イベントは消えません。")){Object.keys(state.overrides).forEach(k=>{if(k.startsWith(state.selected+"_"))delete state.overrides[k]});renderSchedule();save()}}
+function renderTemplates(){
+  const list=document.getElementById("templateList");list.innerHTML="";
+  const q=(document.getElementById("templateSearch")?.value||"").trim().toLowerCase();
+  const hint=document.getElementById("templateSearchHint");
+  if(hint) hint.classList.toggle("hidden", !q);
+  list.classList.toggle("search-active", !!q);
+  let shown=0;
+  state.templates.forEach((t,i)=>{
+    if(q && !`${t.title} ${t.genre}`.toLowerCase().includes(q)) return;
+    shown++;
+    const isIrregular=(t.mode||"regular")==="irregular";
+    const div=document.createElement("div");div.className="template"+(openTemplateIds.has(t.id)?" open":"");div.dataset.templateId=t.id;
+    div.innerHTML=`
+      <div class="template-head">
+        <div class="drag-handle" title="ドラッグして並べ替え">⠿</div>
+        <div>
+          <label>イベント名</label>
+          <textarea class="ta-title" data-field oninput="editTemplate(${i},'title',this.value,false)">${esc(t.title)}</textarea>
+        </div>
+        <div>
+          <label>開催</label>
+          <div style="font-size:13px;font-weight:900;line-height:1.35">${esc(ruleLabel(t))}</div>
+        </div>
+        <button type="button" onclick="toggleTemplateDetail(this)">${openTemplateIds.has(t.id)?"▲ 閉じる":"▼ 詳細"}</button>
+      </div>
+
+      <div class="template-extra">
+        <div class="grid2">
+          <div><label>ジャンル</label><input data-field value="${esc(t.genre)}" oninput="editTemplate(${i},'genre',this.value,false)"></div>
+          <div>
+            <label>開催タイプ</label>
+            <div class="modebuttons" style="margin:0">
+              <button type="button" class="${!isIrregular?'active':''}" onclick="editTemplate(${i},'mode','regular',true)">定期</button>
+              <button type="button" class="${isIrregular?'active':''}" onclick="editTemplate(${i},'mode','irregular',true)">不定期</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="modebox">
+          <div class="${isIrregular?'hidden':''}">
+            <div class="grid4">
+              <div><label>何ヶ月ごと？</label><select data-field onchange="editTemplate(${i},'interval',this.value,true)">${intervalOptions(t.interval)}</select></div>
+              <div><label>第何週？</label><select data-field onchange="editTemplate(${i},'nth',this.value,true)">${nthOptions(t.nth)}</select></div>
+              <div><label>何曜日？</label><select data-field onchange="editTemplate(${i},'weekday',this.value,true)">${dowOptions(t.weekday)}</select></div>
+              <div><label>基準月</label><input data-field type="month" value="${esc(t.base)}" oninput="editTemplate(${i},'base',this.value,true)"></div>
+            </div>
+          </div>
+          <div class="${!isIrregular?'hidden':''}">
+            <label>開催日を直接入力</label>
+            <input data-field type="date" value="${esc(t.date)}" oninput="editTemplate(${i},'date',this.value,true)">
+            <div class="searchhint" style="margin-top:6px">${t.date?"":"※ 日付を入力するまでは月間スケジュールには表示されません"}</div>
+          </div>
+        </div>
+
+        <div style="margin-top:8px"><label>出演者 初期値</label><textarea class="ta-big" data-field oninput="editTemplate(${i},'performers',this.value,false)">${esc(t.performers)}</textarea></div>
+        <div class="grid2" style="margin-top:8px">
+          <div><label>OPEN</label><input data-field value="${esc(t.open)}" oninput="editTemplate(${i},'open',this.value,false)"></div>
+          <div><label>料金</label><input data-field value="${esc(t.price)}" oninput="editTemplate(${i},'price',this.value,false)"></div>
+        </div>
+        <div style="margin-top:8px"><label>固定説明文</label><textarea data-field oninput="editTemplate(${i},'desc',this.value,false)">${esc(t.desc)}</textarea></div>
+        <div style="margin-top:8px;text-align:right"><button type="button" class="danger" onclick="deleteTemplate(${i})">削除</button></div>
+      </div>`;
+    list.appendChild(div)
+  });
+  if(shown===0){
+    const empty=document.createElement("div");
+    empty.className="emptystate";
+    empty.textContent=q ? "「"+document.getElementById("templateSearch").value+"」に一致する開催ルールが見つかりません" : "開催ルールがまだありません。上の「＋」から追加してください。";
+    list.appendChild(empty);
+  }
+  initSortable();
+}
+function initSortable(){
+  const list=document.getElementById("templateList");
+  if(sortableInstance){ sortableInstance.destroy(); sortableInstance=null; }
+  const q=(document.getElementById("templateSearch")?.value||"").trim();
+  if(q || typeof Sortable==="undefined") return;
+  sortableInstance=Sortable.create(list,{
+    handle:".drag-handle",
+    animation:150,
+    ghostClass:"sortable-ghost",
+    onEnd:function(evt){
+      if(evt.oldIndex===evt.newIndex)return;
+      const moved=state.templates.splice(evt.oldIndex,1)[0];
+      state.templates.splice(evt.newIndex,0,moved);
+      renderTemplates();
+      renderSchedule();
+      save();
+    }
+  });
+}
+function toggleTemplateDetail(btn){
+  const card=btn.closest(".template");
+  const id=card.dataset.templateId;
+  card.classList.toggle("open");
+  if(card.classList.contains("open")) openTemplateIds.add(id);
+  else openTemplateIds.delete(id);
+  btn.textContent=card.classList.contains("open") ? "▲ 閉じる" : "▼ 詳細";
+}
+function editTemplate(i,k,v,rerender){
+  const x=window.scrollX, y=window.scrollY;
+  const id=state.templates[i]?.id;
+  if(id) openTemplateIds.add(id);
+  state.templates[i][k]=v;
+  localStorage.setItem(KEY,JSON.stringify(state));
+  if(rerender){
+    renderTemplates();
+    renderSchedule();
+    requestAnimationFrame(()=>window.scrollTo(x,y));
+  }else{
+    renderOutputs();
+  }
+}
+function clearTemplateSearch(){const s=document.getElementById("templateSearch");if(s)s.value=""}
+function scrollToTemplateCard(id,focusDate){
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    const el=document.querySelector(`.template[data-template-id="${id}"]`);
+    if(el){
+      el.scrollIntoView({behavior:"smooth",block:"start"});
+      if(focusDate){
+        const dateInput=el.querySelector('input[type="date"]');
+        if(dateInput) setTimeout(()=>dateInput.focus(),350);
+      }
+    }
+  }));
+}
+function addTemplate(){
+  clearTemplateSearch();
+  const t={id:uid(),title:"新規定期イベント",genre:"",mode:"regular",nth:1,weekday:5,interval:1,base:state.selected,date:"",open:"20:00",price:"入場無料",performers:"",desc:""};
+  state.templates.push(t);
+  openTemplateIds.add(t.id);
+  renderTemplates();renderSchedule();save();
+  scrollToTemplateCard(t.id);
+}
+function addIrregularTemplate(){
+  clearTemplateSearch();
+  const t={id:uid(),title:"新規不定期イベント",genre:"",mode:"irregular",nth:1,weekday:5,interval:1,base:state.selected,date:"",open:"20:00",price:"入場無料",performers:"",desc:""};
+  state.templates.push(t);
+  openTemplateIds.add(t.id);
+  renderTemplates();renderSchedule();save();
+  scrollToTemplateCard(t.id,true);
+}
+function addSingleEvent(){
+  const t={id:uid(),title:"新規単発イベント",genre:"",mode:"irregular",nth:1,weekday:5,interval:1,base:state.selected,date:"",open:"20:00",price:"入場無料",performers:"",desc:""};
+  state.templates.push(t);
+  openTemplateIds.add(t.id);
+  clearTemplateSearch();
+  renderTemplates();renderSchedule();save();
+  showPage("templates");
+  document.getElementById("navTemplatesBtn")?.classList.add("active");
+  scrollToTemplateCard(t.id,true);
+}
+function deleteTemplate(i){
+  if(!confirm("開催ルールを削除しますか？"))return;
+  const id=state.templates[i]?.id;
+  state.templates.splice(i,1);
+  if(id){
+    Object.keys(state.overrides).forEach(k=>{ if(k.endsWith("_"+id)) delete state.overrides[k]; });
+  }
+  renderTemplates();renderSchedule();save()
+}
+function nthOptions(v){return [[1,"第1"],[2,"第2"],[3,"第3"],[4,"第4"],[5,"第5"],[9,"最終"]].map(x=>`<option value="${x[0]}" ${Number(v)===x[0]?"selected":""}>${x[1]}</option>`).join("")}
+function dowOptions(v){return DOWS.map((d,i)=>`<option value="${i}" ${Number(v)===i?"selected":""}>${d}曜日</option>`).join("")}
+function intervalOptions(v){return [[1,"毎月"],[2,"2ヶ月に1回（隔月）"],[3,"3ヶ月に1回"],[4,"4ヶ月に1回"]].map(x=>`<option value="${x[0]}" ${Number(v)===x[0]?"selected":""}>${x[1]}</option>`).join("")}
+function cleanField(s){
+  if(s==null)return "";
+  return String(s)
+    .split("\n")
+    .map(l=>l.replace(/^[ \t　]+|[ \t　]+$/g,""))
+    .join("\n")
+    .replace(/\n{3,}/g,"\n\n")
+    .trim();
+}
+function renderOutputs(){
+  const arr=generateItems().filter(e=>e.visible);
+  const detail=arr.map(e=>{
+    const d=new Date(e.date+"T00:00:00");
+    const title=cleanField(e.title), genre=cleanField(e.genre), performers=cleanField(e.performers), desc=cleanField(e.desc);
+    let lines=[`${d.getMonth()+1}/${d.getDate()}`,title];
+    if(genre)lines.push(genre);
+    if(performers)lines.push(performers);
+    if(desc)lines.push(desc);
+    lines.push(`OPEN ${e.open||""} ${e.price||""}`.trim());
+    return lines.join("\n")
+  }).join("\n\n");
+  const el=document.getElementById("detailText");
+  if(el) el.textContent=detail;
+}
+function copyText(id){
+  const text=document.getElementById(id).textContent;
+  const fallback=()=>{
+    try{
+      const ta=document.createElement("textarea");
+      ta.value=text;ta.style.position="fixed";ta.style.opacity="0";
+      document.body.appendChild(ta);ta.focus();ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      alert("コピーしました");
+    }catch(e){
+      alert("コピーに失敗しました。テキストを長押しして手動でコピーしてください。");
+    }
+  };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(()=>alert("コピーしました")).catch(fallback);
+  }else{
+    fallback();
+  }
+}
+function exportData(){
+  const [y,m]=state.selected.split("-");
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download=`monthly-schedule-taro-backup_${y}${m}.json`;
+  a.click();
+}
+function importData(){
+  const f=document.getElementById("importFile");
+  f.value="";
+  f.click();
+  f.onchange=()=>{
+    const file=f.files[0];
+    if(!file)return;
+    const r=new FileReader();
+    r.onload=()=>{
+      let parsed;
+      try{
+        parsed=JSON.parse(r.result);
+        if(!parsed || typeof parsed!=="object" || !Array.isArray(parsed.templates)) throw new Error("invalid shape");
+      }catch(err){
+        alert("読み込みに失敗しました。ファイルが壊れているか、対応していない形式です。");
+        return;
+      }
+      if(!confirm("現在のデータを上書きして読み込みます。よろしいですか？")) return;
+      state=parsed;
+      state.overrides=state.overrides||{};
+      state.templates=state.templates||[];
+      if(!state.selected) state.selected=`${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,"0")}`;
+      initMonthSelect();
+      renderAll();
+      save();
+      alert("読み込みました");
+    };
+    r.onerror=()=>alert("ファイルの読み込みに失敗しました。");
+    r.readAsText(file);
+  };
+}
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+
+document.addEventListener("keydown", function(e){
+  if(e.key === "Enter" && e.target && e.target.matches("input[data-field]")){
+    e.preventDefault();
+    const fields=[...document.querySelectorAll("input[data-field], textarea[data-field], select[data-field]")].filter(el=>!el.disabled && el.offsetParent!==null);
+    const idx=fields.indexOf(e.target);
+    if(idx>=0 && fields[idx+1]) fields[idx+1].focus();
+    return false;
+  }
+});
+
+load();
+</script>
+</body>
+</html>
